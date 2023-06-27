@@ -1,0 +1,1 @@
+{"version":3,"sources":["main.js"],"names":["console","log"],"mappings":";;AACA;;AACA;;AACA;;AAIAA,OAAO,CAACC,GAAR,CAAY,gCAAZ","sourcesContent":["\nimport './data.js';\nimport './util.js';\nimport './object-info-foto.js';\n\nimport { infoFotos } from './object-info-foto.js';\n\nconsole.log(infoFotos());\n\n\n\n\n\n"],"file":"main.dev.js"}
