@@ -116,8 +116,15 @@
 
                 <!-- Добавление хэш-тегов и комментария к изображению -->
                 <fieldset class="img-upload__text text">
-                  <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
-                  <textarea class="text__description" name="description" placeholder="Ваш комментарий..."></textarea>
+                  <label class="img-upload__element">
+                    <input class="text__hashtags" name="hashtags" placeholder="#ХэшТег">
+                  </label>
+                  <<label class="img-upload__element">>
+                    <textarea class="text__description" name="description" maxlength ="140" placeholder="Ваш комментарий..."
+                      data-pristine-maxlength-massage="Максимальная длина 140 символов."
+                    ></textarea>
+                  </label>
+
                 </fieldset>
 
                 <!-- Кнопка для отправки данных на сервер -->
