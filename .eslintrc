@@ -12,7 +12,8 @@ globals:
   _: readonly
   L: readonly
   noUiSlider: readonly
-  Pristine: readonly
+  Pristine: true
 
 extends:
   "htmlacademy/vanilla"
+
