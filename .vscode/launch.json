@@ -6,7 +6,7 @@
     "configurations": [
         {
           "type": "chrome",
-
+          "outputCapture": "std",
             "request": "launch",
             "name": "Open index.html",
             "file": "d:\\Занятия\\html\\Проекты\\Кекстаграм\\index.html",
