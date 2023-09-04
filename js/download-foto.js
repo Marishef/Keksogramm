@@ -3,7 +3,7 @@
 
 // renderBigPicture();
 const uploadForm = document.querySelector('.img-upload__form');
-const fileField = document.querySelector('.img-upload__cancel');
+const fileField = document.querySelector('#upload-file');
 const imgUploadOverlay = document.querySelector('.img-upload__overlay');
 // const bodyModal = document.querySelector('body');
 const cancelButton = document.querySelector('#upload-cancel');
@@ -45,7 +45,7 @@ const closeModal = () => {
   uploadForm.reset();
   formPristine.reset();
   imgUploadOverlay.classList.add('hidden');
-  bodyModal.classList.remove('modal-open');
+  body.classList.remove('modal-open');
   document.removeEventListener('keydown', onEscKeyDown);
   // fileField.removeEventListener('change', () => {
   //   showModal();

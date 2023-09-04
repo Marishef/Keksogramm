@@ -7,6 +7,7 @@ import {createPicture} from './rendering-thumbnails.js';
 
 import './download-foto.js';
 
+import { resetScasle } from './scale.js';
 createPicture(PhotoDescriptions());
 
 
