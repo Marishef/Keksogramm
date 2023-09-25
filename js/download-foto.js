@@ -1,16 +1,17 @@
+import { resetEffects} from "./effects.js"
+import { resetScasle } from "./scale.js";
 
-// import {renderBigPicture} from 'big-picture.js';
-
-// renderBigPicture();
 const uploadForm = document.querySelector('.img-upload__form');
-const fileField = document.querySelector('#upload-file');
 const imgUploadOverlay = document.querySelector('.img-upload__overlay');
-// const bodyModal = document.querySelector('body');
+const body = document.querySelector('body');
 const cancelButton = document.querySelector('#upload-cancel');
+const fileField = document.querySelector('#upload-file');
 const hashTagField = document.querySelector('.text__hashtags');
 const commentField = document.querySelector('.text__description');
 
-const lineValid = /^#[A-Za-zА-Яа-яЁё0-9]/g;
+
+
+const lineValid = /[^a-zA-Z0-9а-яА-ЯёЁ]/g;
 const maxHashTagCount = 5;
 const minHashTagLength = 2;
 const maxHashTagLength = 20;
@@ -47,6 +48,8 @@ const closeModal = () => {
   imgUploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   document.removeEventListener('keydown', onEscKeyDown);
+  resetScasle();
+  resetEffects()
   // fileField.removeEventListener('change', () => {
   //   showModal();
   // });
