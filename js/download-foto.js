@@ -1,148 +1,197 @@
-import { resetEffects} from "./effects.js"
-import { resetScasle } from "./scale.js";
 
-const uploadForm = document.querySelector('.img-upload__form');
-const imgUploadOverlay = document.querySelector('.img-upload__overlay');
-const body = document.querySelector('body');
-const cancelButton = document.querySelector('#upload-cancel');
-const fileField = document.querySelector('#upload-file');
-const hashTagField = document.querySelector('.text__hashtags');
-const commentField = document.querySelector('.text__description');
+import { resetEditPhoto } from './edit-foto.js';
 
+import { sendData } from './api.js';
 
-
-const lineValid = /[^a-zA-Z0-9а-яА-ЯёЁ]/g;
-const maxHashTagCount = 5;
-const minHashTagLength = 2;
-const maxHashTagLength = 20;
-// https://habr.com/ru/articles/123845/
-//https://stackru.com/questions/34058492/kak-dekodirovat-javascript-v-regulyarnoe-vyirazhenie-a-za-z0-9-g
-//https://habr.com/ru/companies/ruvds/articles/343798/
+const filePhoto = document.querySelector('#upload-file');
+const closeBtn = document.querySelector('#upload-cancel');
+const editorPhoto = document.querySelector('.img-upload__overlay');
+const bodyElement = document.querySelector('body');
+const imgUploadForm = document.querySelector('.img-upload__form');
+const imgSubmitBtn = document.querySelector('.img-upload__submit');
 
 
+let isErrorModal = false;
+const isEscapeKey = (evt) => evt.key === 'Escape';
 
-//валидация формы
-const formPristine = new Pristine (
-  uploadForm, {
-    ClassTo: 'img-upload__element',
-    errorTextParent: 'img-upload__element',
-    errorTextClass: 'img-upload__error'
-    // errorClass: 'img-upload__element--invalid',
-    // successClass: 'img-upload__element--valid',
-    // errorTextTag: 'span',
-    // errorTextClass: 'form__error'
-  }
-);
-const showModal = () => {
-  imgUploadOverlay.classList.remove('hidden');
-  // bodyModal.classList.add('modal-open');
-  document.body.classList.add('modal-open');
-  // document.removeEventListener('keydown', onEscKeyDown);
-  document.addEventListener('keydown', onEscKeyDown);
-}
-
-// фцнкция закрытия окна
-const closeModal = () => {
-  uploadForm.reset();
-  formPristine.reset();
-  imgUploadOverlay.classList.add('hidden');
-  body.classList.remove('modal-open');
-  document.removeEventListener('keydown', onEscKeyDown);
-  resetScasle();
-  resetEffects()
-  // fileField.removeEventListener('change', () => {
-  //   showModal();
-  // });
+const onClose = () => {
+  editorPhoto.classList.add('hidden');
+  bodyElement.classList.remove('modal-open');
+  imgUploadForm.reset();
+  resetEditPhoto();
 };
 
-// при фокусе не сработает esc
-const isTextFieldFocused = () =>
-document.activeElement === hashtagField ||
-document.activeElement === commentField;
-
-//функция, вызываемая при нажатии esc
-function onEscKeyDown(evt) {
-if (evt.keyCode === 'Escape') {
-      evt.preventDefault();
-      closeModal();
-}
-}
-
-// закрыть крестиком
-const onCancelButtonClick = () => {
-  closeModal();
-}
-//открыть окно загрузки
-const onFileInputChange = () => {
-  showModal();
-}
-//функция возвращает, true, если слово начиналось с #
-const startHashTag = (string) => string[0] === '0';
-
-//функция возвращает, true, если длина хэштега от 2 до 20
-const hasValidLength = (string) => {
-  string.length >= minHashTagLength && string.length <= maxHashTagLength;
-}
-
-//функция возвращает, true, если ???????????
-const hasValidSymbols = (string) => !lineValid.test(string.slice(1));
-
-//возвращает tru, если все 3 функции были true
-const isValidHashTag = (tag) =>
-startHashTag(tag) && hasValidLength(tag) && hasValidSymbols(tag);
-
-//возвращает true, если хэштегов меньше 5
-const hasValidCount = (tags) => tags.length <= maxHashTagCount;
-
-  //возвращает true, если переменная, гду хранятся теги = переменной,
-  // где теги, преобразованные в нижний регистр
-const hasUniqueHashTags = (tags) => {
-// преобразуем в нижний регистр
-  const lowerCaseHashTags = tags.map((tag) => tag.toLowerCase());
-  // сверим
-  return lowerCaseHashTags.length === new Set(lowerCaseHashTags).size;
-}
-
-//возвращает true, если 2 функции и проверка других фукций тоже true
-const validateHashTag = (value) => {
-  //присвоем значения хэштегов переменной
-  const tags = value
-  //удаолим вначале и в конце пробелы
-    .trim()
-  //разделим тх по пробелу
-    .split(' ')
-  //отфильтруем в новый массив количество без пробелов
-    .filter((tag) => tag.trim().length);
-
-    // Метод массива .every() позволяет узнать, удовлетворяют ли все
-    // элементы в массиве условию в функции-колбэке
-    //возвращаем true или false
-    return hasValidCount (tags) && hasUniqueHashTags(tags) && tags.every(isValidHashTag);
-};
-
-//валидация
-formPristine.addValidator (
-  //переменная, поиск текста хэштега
-  hashTagField,
-  validateHashTag,
-  'Неправильно заполнены хэштеги'
-);
-
-// запуск валидации
-const onFormSubmit = (evt) => {
+const clickBtnClose = () => closeBtn.addEventListener('click', (evt) => {
   evt.preventDefault();
-  formPristine.validate();
-}
+  onClose();
+});
 
-//запускаем слушатели
+const closeEscEditor = () => document.addEventListener('keydown', (evt) => {
+  if (isErrorModal === true) {
+    return false;
+  }
+  if (isEscapeKey(evt)) {
+    evt.preventDefault();
+    onClose();
+  }
+});
 
-//слушаем изменения в первоначальной форме загрузки файла и открываем модальное окно
-fileField.addEventListener('change', onFileInputChange);
+const openEditor = () => filePhoto.addEventListener('change', () => {
+  editorPhoto.classList.remove('hidden');
+  bodyElement.classList.add('modal-open');
 
-//слушаем нажатие крестика и закрываем окно
-cancelButton.addEventListener('click', onCancelButtonClick);
+  document.addEventListener('keydown', closeEscEditor);
+  document.addEventListener('click', clickBtnClose);
+});
 
-//ловим отправку форму с валидативными данными
-uploadForm.addEventListener('submit', onFormSubmit);
+const closeEditor = () => {
+  onClose();
+
+  document.removeEventListener('keydown', closeEscEditor);
+  document.removeEventListener('click', clickBtnClose);
+};
+
+const succesTemplate = document.querySelector('#success').content;
+const errorTemplate = document.querySelector('#error').content;
+
+const closeModal = (modal) => {
+  modal.remove();
+};
+
+const blockSubmitButton = () => {
+  imgSubmitBtn.disabled = true;
+  imgSubmitBtn.textContent = 'Отправляю...';
+};
+
+const unblockSubmitButton = () => {
+  imgSubmitBtn.disabled = false;
+  imgSubmitBtn.textContent = 'Опубликовать';
+};
+
+const appendSuccesModal = () => {
+  const successElement = succesTemplate.cloneNode(true);
+  bodyElement.appendChild(successElement);
+
+  const successModalElement = document.querySelector('.success');
+
+  const onSuccessModalEscKeydown = () => document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      closeModal(successModalElement);
+    }
+  });
+
+  const onSuccesClickClose = () => successModalElement.addEventListener('click', () => {
+    closeModal(successModalElement);
+    closeEditor();
+  });
+
+  onSuccessModalEscKeydown();
+  onSuccesClickClose();
+  unblockSubmitButton();
+};
+
+const errorDownload = () => {
+  isErrorModal = true;
+  const errorElement = errorTemplate.cloneNode(true);
+  bodyElement.appendChild(errorElement);
+
+  const errorModalElement = document.querySelector('.error');
+
+  const onErrorModalEscKeydown = () => document.addEventListener('keydown', (evt) => {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      closeModal(errorModalElement);
+      isErrorModal = false;
+    }
+  });
+
+  const onErrorClickClose = () => document.addEventListener('click', () => {
+    closeModal(errorModalElement);
+    isErrorModal = false;
+  });
+
+  onErrorModalEscKeydown();
+  onErrorClickClose();
+  unblockSubmitButton();
+};
+
+imgUploadForm.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  const formData = new FormData(evt.target);
+  blockSubmitButton();
+  sendData(formData, appendSuccesModal, errorDownload);
+});
+
+export {
+  openEditor,
+  closeEditor,
+  clickBtnClose,
+  closeEscEditor,
+};
+
+
+
+// import { resetEffects} from "./effects.js"
+// import { resetScasle } from "./scale.js";
+// import { hashtagsInput, commentInput, outlineDefaultStyle } from './validator.js'
+
+
+// const uploadForm = document.querySelector('.img-upload__form');
+// const imgUploadOverlay = document.querySelector('.img-upload__overlay');
+// const body = document.querySelector('body');
+// const cancelButton = document.querySelector('#upload-cancel');
+// const fileField = document.querySelector('#upload-file');
+// const hashTagField = document.querySelector('.text__hashtags');
+// const commentField = document.querySelector('.text__description');
+
+
+// const showModal = () => {
+//   imgUploadOverlay.classList.remove('hidden');
+//   document.body.classList.add('modal-open');
+//   document.addEventListener('keydown', onEscKeyDown);
+// }
+
+// // фцнкция закрытия окна
+// const closeModal = () => {
+//   uploadForm.reset();
+
+//   imgUploadOverlay.classList.add('hidden');
+//   body.classList.remove('modal-open');
+//   document.removeEventListener('keydown', onEscKeyDown);
+//   resetScasle();
+//   resetEffects();
+//   document.removeEventListener('keydown', onDocumentKeydown);
+// };
+
+// // при фокусе не сработает esc
+
+
+// //функция, вызываемая при нажатии esc
+// function onEscKeyDown(evt) {
+// if (evt.key === 'Escape' && !(document.activeElement === hashtagsInput) && !(document.activeElement === commentInput)) {
+//       evt.preventDefault();
+//       closeModal();
+// }
+// }
+
+// // закрыть крестиком
+// const onCancelButtonClick = () => {
+//   closeModal();
+// }
+// //открыть окно загрузки
+// const onFileInputChange = () => {
+//   showModal();
+// }
+
+
+// //запускаем слушатели
+// //слушаем изменения в первоначальной форме загрузки файла и открываем модальное окно
+// fileField.addEventListener('change', onFileInputChange);
+// //слушаем нажатие крестика и закрываем окно
+// cancelButton.addEventListener('click', onCancelButtonClick);
+
+
+// export {  closeModal};
 
 
