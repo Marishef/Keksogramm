@@ -1,3 +1,5 @@
+
+
 import { renderBigPicture} from "./big-picture.js";
 
 const container = document.querySelector('.pictures');
